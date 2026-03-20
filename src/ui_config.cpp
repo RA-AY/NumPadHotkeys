@@ -592,41 +592,75 @@ static LRESULT CALLBACK ConfigWndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
             return hw;
         };
 
-        // Profile row
-        Mk(L"STATIC",  L"Profile:", SS_LEFT, 8,8,50,20, -1);
-        Mk(WC_COMBOBOXW, L"", CBS_DROPDOWNLIST|WS_VSCROLL, 62,6,200,200, IDC_PROFILE_COMBO);
-        Mk(L"BUTTON", L"New",    BS_PUSHBUTTON, 268,6,50,22, IDC_NEW_PROFILE_BTN);
-        Mk(L"BUTTON", L"Delete", BS_PUSHBUTTON, 322,6,56,22, IDC_DEL_PROFILE_BTN);
+        // ── Layout constants ──────────────────────────────────────
+        // Client area: 580 × 306
+        // Left column  (visualiser): x=8,  w=305
+        // Right column (editor):     x=321, w=251  (ends at 572)
+        // Top header: y=0..32  Bottom bar: y=274..306
+        const int kVizX=8, kVizY=36, kVizW=305, kVizH=224;
+        const int kRX=321, kRW=251;   // right column x, width
+        const int kBtnY=276;           // bottom buttons y
 
-        // Visualiser
+        // ── Profile row (full width) ──────────────────────────────
+        Mk(L"STATIC",    L"Profile:", SS_LEFT|SS_CENTERIMAGE, 8,7,52,22, -1);
+        Mk(WC_COMBOBOXW, L"", CBS_DROPDOWNLIST|WS_VSCROLL,   64,7,196,200, IDC_PROFILE_COMBO);
+        Mk(L"BUTTON", L"New",    BS_PUSHBUTTON, 266,7,52,22, IDC_NEW_PROFILE_BTN);
+        Mk(L"BUTTON", L"Delete", BS_PUSHBUTTON, 322,7,58,22, IDC_DEL_PROFILE_BTN);
+
+        // Horizontal separator
+        Mk(L"STATIC", L"", SS_ETCHEDHORZ, 8,33,564,2, -1);
+
+        // ── Left column: NumPad visualiser ───────────────────────
         st->hViz = CreateWindowExW(WS_EX_CLIENTEDGE, L"NumPadViz", L"",
-            WS_CHILD|WS_VISIBLE, 8,34,300,210,
+            WS_CHILD|WS_VISIBLE, kVizX,kVizY,kVizW,kVizH,
             hWnd, reinterpret_cast<HMENU>(static_cast<INT_PTR>(IDC_NUMPAD_VIZ)),
             st->hInst, nullptr);
 
-        // Editor panel (right side)
-        Mk(L"STATIC", L"Click a key to edit it", SS_LEFT, 8,250,500,18, IDC_SELECTED_KEY_LABEL);
-        Mk(L"STATIC", L"Label:",    SS_LEFT, 8,274,45,18, -1);
-        Mk(L"EDIT",   L"", ES_AUTOHSCROLL|WS_BORDER, 56,272,250,20, IDC_LABEL_EDIT);
+        // ── Right column: editor ──────────────────────────────────
+        // Selected key label
+        Mk(L"STATIC", L"Click a key to edit", SS_LEFT,
+           kRX, kVizY, kRW, 18, IDC_SELECTED_KEY_LABEL);
 
-        // Action radios
-        Mk(L"BUTTON", L"Keystroke", BS_AUTORADIOBUTTON|WS_GROUP, 8,298,90,18, IDC_ACTION_KEYSTROKE);
-        Mk(L"BUTTON", L"Text",      BS_AUTORADIOBUTTON, 102,298,60,18, IDC_ACTION_TEXT);
-        Mk(L"BUTTON", L"App",       BS_AUTORADIOBUTTON, 166,298,55,18, IDC_ACTION_APP);
-        Mk(L"BUTTON", L"Media",     BS_AUTORADIOBUTTON, 225,298,65,18, IDC_ACTION_MEDIA);
-        Mk(L"BUTTON", L"Disabled",  BS_AUTORADIOBUTTON, 294,298,75,18, IDC_ACTION_DISABLED);
+        // Label field
+        Mk(L"STATIC", L"Label:", SS_LEFT|SS_CENTERIMAGE,
+           kRX, kVizY+24, 42, 22, -1);
+        Mk(L"EDIT", L"", ES_AUTOHSCROLL|WS_BORDER,
+           kRX+46, kVizY+24, kRW-46, 22, IDC_LABEL_EDIT);
+
+        // Action group box + radios
+        Mk(L"BUTTON", L"Action", BS_GROUPBOX,
+           kRX, kVizY+52, kRW, 88, -1);
+        Mk(L"BUTTON", L"Keystroke", BS_AUTORADIOBUTTON|WS_GROUP,
+           kRX+8, kVizY+68, 90, 18, IDC_ACTION_KEYSTROKE);
+        Mk(L"BUTTON", L"Text",      BS_AUTORADIOBUTTON,
+           kRX+102, kVizY+68, 55, 18, IDC_ACTION_TEXT);
+        Mk(L"BUTTON", L"App",       BS_AUTORADIOBUTTON,
+           kRX+161, kVizY+68, 50, 18, IDC_ACTION_APP);
+        Mk(L"BUTTON", L"Media",     BS_AUTORADIOBUTTON,
+           kRX+8, kVizY+90, 60, 18, IDC_ACTION_MEDIA);
+        Mk(L"BUTTON", L"Disabled",  BS_AUTORADIOBUTTON,
+           kRX+72, kVizY+90, 75, 18, IDC_ACTION_DISABLED);
         CheckRadioButton(hWnd, IDC_ACTION_KEYSTROKE, IDC_ACTION_DISABLED, IDC_ACTION_DISABLED);
 
-        // Shortcut row
-        Mk(L"STATIC", L"Shortcut:", SS_LEFT, 8,322,55,18, -1);
-        Mk(L"EDIT",   L"", ES_AUTOHSCROLL|WS_BORDER, 66,320,200,20, IDC_SHORTCUT_EDIT);
-        Mk(L"BUTTON", L"Record\u2026", BS_PUSHBUTTON, 272,320,70,22, IDC_RECORD_BTN);
-        Mk(L"BUTTON", L"Browse\u2026", BS_PUSHBUTTON, 348,320,70,22, IDC_BROWSE_BTN);
+        // Shortcut field
+        Mk(L"STATIC", L"Shortcut:", SS_LEFT|SS_CENTERIMAGE,
+           kRX, kVizY+148, 55, 22, -1);
+        Mk(L"EDIT", L"", ES_AUTOHSCROLL|WS_BORDER,
+           kRX+58, kVizY+148, kRW-58, 22, IDC_SHORTCUT_EDIT);
 
-        // Bottom buttons
-        Mk(L"BUTTON", L"Save",            BS_DEFPUSHBUTTON, 8,352,80,26, IDC_SAVE_BTN);
-        Mk(L"BUTTON", L"Cancel",          BS_PUSHBUTTON,   96,352,80,26, IDC_CANCEL_BTN);
-        Mk(L"BUTTON", L"Reset to default",BS_PUSHBUTTON,  184,352,130,26, IDC_RESET_BTN);
+        // Record / Browse buttons
+        Mk(L"BUTTON", L"Record\u2026", BS_PUSHBUTTON,
+           kRX, kVizY+176, 100, 24, IDC_RECORD_BTN);
+        Mk(L"BUTTON", L"Browse\u2026", BS_PUSHBUTTON,
+           kRX+108, kVizY+176, 100, 24, IDC_BROWSE_BTN);
+
+        // ── Horizontal separator above bottom bar ─────────────────
+        Mk(L"STATIC", L"", SS_ETCHEDHORZ, 8, kBtnY-6, 564, 2, -1);
+
+        // ── Bottom buttons ────────────────────────────────────────
+        Mk(L"BUTTON", L"Save",             BS_DEFPUSHBUTTON, 8,       kBtnY, 88, 26, IDC_SAVE_BTN);
+        Mk(L"BUTTON", L"Cancel",           BS_PUSHBUTTON,   104,      kBtnY, 88, 26, IDC_CANCEL_BTN);
+        Mk(L"BUTTON", L"Reset to default", BS_PUSHBUTTON,   200,      kBtnY, 130,26, IDC_RESET_BTN);
 
         RefreshProfileCombo(hWnd, *st->cfg);
         UpdateViz(hWnd, st);
@@ -807,7 +841,8 @@ static LRESULT CALLBACK ConfigWndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
         return 0;
 
     case WM_DESTROY:
-        PostQuitMessage(st ? (st->saved ? 0 : 1) : 1);
+        // Do NOT PostQuitMessage — that would kill the main tray message pump.
+        // The nested loop in ConfigUI::Show exits via IsWindow() going false.
         return 0;
     }
     return DefWindowProcW(hWnd, msg, wp, lp);
@@ -837,25 +872,33 @@ bool ConfigUI::Show(HWND hParent, HINSTANCE hInst, AppConfig& cfg)
     st.hInst = hInst;
     st.cfg   = &cfg;
 
-    // Calculate window size so the client area is exactly 530 × 420
-    // (controls run to y=378; 42px bottom padding is comfortable)
+    // Client area: 580 wide × 306 tall
+    // Controls end at y=276+26=302; 4px bottom margin → 306.
     const DWORD kStyle   = WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX;
     const DWORD kExStyle = WS_EX_DLGMODALFRAME;
-    const int   kClientW = 530, kClientH = 420;
+    const int   kClientW = 580, kClientH = 306;
     RECT adjRect = { 0, 0, kClientW, kClientH };
     AdjustWindowRectEx(&adjRect, kStyle, FALSE, kExStyle);
     int wndW = adjRect.right  - adjRect.left;
     int wndH = adjRect.bottom - adjRect.top;
 
+    // NOTE: hParent must NOT be a HWND_MESSAGE window — message-only windows
+    // cannot own visible windows; CreateWindowExW would silently return NULL.
+    // We use nullptr so the config window is a top-level owned by the desktop.
     HWND hWnd = CreateWindowExW(
         kExStyle,
         L"NumPadHotkeysConfig",
-        L"NumPad Hotkeys \u2014 Configuration",
+        L"NumPad Hotkeys \u2014 Configuration  v1.0.0",
         kStyle,
         CW_USEDEFAULT, CW_USEDEFAULT, wndW, wndH,
-        hParent, nullptr, hInst, &st);
+        nullptr, nullptr, hInst, &st);
 
-    if (!hWnd) return false;
+    if (!hWnd) {
+        WCHAR buf[128];
+        swprintf_s(buf, L"Config window creation failed (error %lu).", GetLastError());
+        MessageBoxW(nullptr, buf, L"NumPad Hotkeys", MB_OK|MB_ICONERROR);
+        return false;
+    }
 
     // Centre on parent / screen
     RECT rw; GetWindowRect(hWnd, &rw);
@@ -871,12 +914,22 @@ bool ConfigUI::Show(HWND hParent, HINSTANCE hInst, AppConfig& cfg)
     INITCOMMONCONTROLSEX icc = { sizeof(icc), ICC_STANDARD_CLASSES };
     InitCommonControlsEx(&icc);
 
-    // Nested message loop — runs until WM_DESTROY posts WM_QUIT
+    // Nested message loop — exits when the config window is destroyed.
+    // Uses PeekMessage so a real WM_QUIT (app exit) is re-posted for the
+    // main pump rather than swallowed here.
     MSG m;
-    while (GetMessageW(&m, nullptr, 0, 0) > 0) {
-        if (!IsWindow(hWnd)) break;
-        TranslateMessage(&m);
-        DispatchMessageW(&m);
+    while (IsWindow(hWnd)) {
+        if (PeekMessageW(&m, nullptr, 0, 0, PM_REMOVE)) {
+            if (m.message == WM_QUIT) {
+                // Real shutdown — re-post so main loop also sees it, then stop.
+                PostQuitMessage(static_cast<int>(m.wParam));
+                break;
+            }
+            TranslateMessage(&m);
+            DispatchMessageW(&m);
+        } else {
+            WaitMessage();  // sleep until the next message arrives
+        }
     }
 
     return st.saved;
