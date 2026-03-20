@@ -1,0 +1,30 @@
+CXX      = g++
+WINDRES  = windres
+CXXFLAGS = -O2 -Wall -Wextra -Wno-unused-parameter -Wno-unused-function \
+           -DUNICODE -D_UNICODE -DWIN32_LEAN_AND_MEAN -DNOMINMAX \
+           -std=c++17 -Isrc
+LDFLAGS  = -mwindows -static-libgcc -static-libstdc++ \
+           -luser32 -lshell32 -lcomctl32 -lole32 -lgdi32 -lcomdlg32
+
+SRCS = src/main.cpp src/hook.cpp src/tray.cpp src/config.cpp src/ui_config.cpp
+OBJS = $(SRCS:.cpp=.o)
+RCOBJ = res/resource.o
+
+TARGET = NumPadHotkeys.exe
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS) $(RCOBJ)
+	$(CXX) $(OBJS) $(RCOBJ) $(LDFLAGS) -o $@
+	@echo Build complete: $(TARGET)
+
+src/%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(RCOBJ): res/NumPadHotkeys.rc src/resource.h
+	$(WINDRES) res/NumPadHotkeys.rc -o $(RCOBJ)
+
+clean:
+	-del /Q src\*.o res\resource.o $(TARGET) 2>nul || true
+
+.PHONY: all clean

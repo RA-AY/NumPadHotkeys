@@ -1,0 +1,32 @@
+# Build output
+build/
+*.exe
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exp
+*.lib
+
+# CMake generated
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
