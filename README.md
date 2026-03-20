@@ -24,6 +24,12 @@ That's how **NumPad Hotkeys** was born — not from a grand plan or a product br
 
 ---
 
+## Screenshot
+
+![NumPad Hotkeys — Configuration window and tray menu](assets/screenshot.png)
+
+---
+
 ## What It Does
 
 NumPad Hotkeys installs a system-wide keyboard hook and intercepts every key on your numeric keypad before any other application sees it. Each key becomes a programmable button — fire a shortcut combo, type a text snippet, launch an app, or trigger a media key. Everything is configured through a visual numpad editor in the system tray.
